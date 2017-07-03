@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+<style>
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 6px;
+  height: 6px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  margin: auto;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.speech, speech {
+   min-width:116px;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.button,
+button {
+  margin: 4px 0;
+}
+
+</style>
+
+<script>
+
+google.script.run.withSuccessHandler(setSendToSpeechDocButton).isSpeechDoc();
+
+function setSendToSpeechDocButton(isSpeechDoc) {
+  var butt = document.getElementById('sendToSpeechButton');
+  if(!isSpeechDoc)
+     butt.innerText = "Send to";
+  else
+     butt.innerText = "Set insert";
+}
+
+function onUrlSuccess(url) {
+  window.open(url);
+  hideLoader();
+}
+
+function hideLoader() {
+  document.getElementById("loader").style.visibility="hidden";
+}
+
+function showLoader() {
+  document.getElementById("loader").style.visibility="visible";
+}
+
+
+</script>
+
+</head>
+
+<body>
+
+<div style="text-align: center">
+<div style="display: inline-block;">
+<span style="padding:6px"></span>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).condense()'>Condense</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).pocket();'>Pocket</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).hat();'>Hat</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).block()'>Block</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).tag()'>Tag</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).cite()'>Cite</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).underline()'>Underline</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).emphasis()'>Emphasis</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).highlight()'>Highlight</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).clear()'>Clear</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).shrink()'>Shrink</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).preferences()'>Prefs</button>
+</div>
+<hr>
+Speech Commands
+<div>
+<span style="padding:6px"></span>
+<button class="create" onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).newSpeechDoc();'>New</button>
+<button class="action" onClick='showLoader(); google.script.run.withSuccessHandler(setSendToSpeechDocButton).isSpeechDoc(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).sendToSpeechDoc()' id='sendToSpeechButton'>Send To</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(onUrlSuccess).withFailureHandler(hideLoader).currentSpeechDocURL()'>Open</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).chooseSpeechDoc()'>Choose</button>
+<button onClick='showLoader(); google.script.host.editor.focus(); google.script.run.withSuccessHandler(hideLoader).withFailureHandler(hideLoader).mark()'>Mark</button>
+</div>
+</div>
+
+<script>
+var timer = -1;
+var lastTime = 0;
+
+function startCountDown() {
+
+  var startButt = document.getElementById("start");
+  var minElem = document.getElementById("minutes");
+  var secElem = document.getElementById("seconds");
+  
+  if(startButt.innerHTML == "Start") {
+   
+    var startTime = parseInt(minElem.value) * 60 + parseInt(secElem.value);
+    lastTime = startTime;
+    var startDate = (new Date()).getTime();
+    var endDate = startDate + startTime * 1000;
+    
+    minElem.readOnly = true;
+    secElem.readOnly = true;
+  
+    minElem.style.color="black";
+    secElem.style.color="black";
+    startButt.innerHTML = "Stop";
+    
+    timer = setInterval(function() {
+      
+      startDate = (new Date()).getTime();
+      startTime = Math.floor((endDate - startDate) / 1000);
+      var minutes = Math.floor(startTime / 60);
+      var seconds = Math.floor(startTime % 60);
+      
+      minElem.value = padTime(minutes);
+      secElem.value = padTime(seconds);
+      
+      if(startTime <= 30) {
+        minElem.style.color="red";
+        secElem.style.color="red";
+      }
+      
+      if(startTime === 0) {
+        clearInterval(timer);
+        var audio = document.getElementsByTagName("audio")[0];
+        audio.play();
+      }
+    
+    }, 100);
+  }
+  else {
+    clearInterval(timer);
+    startButt.innerHTML = "Start";
+    minElem.readOnly = false;
+    secElem.readOnly = false;
+    var audio = document.getElementsByTagName("audio")[0];
+    audio.pause();
+    audio.currentTime = 0;
+  }
+}
+
+function resetCoundDown() {
+  clearInterval(timer);
+  
+  var startButt = document.getElementById("start");
+  var minElem = document.getElementById("minutes");
+  var secElem = document.getElementById("seconds");
+  
+  startButt.innerHTML = "Start";
+  minElem.readOnly = false;
+  secElem.readOnly = false;
+  
+  minElem.style.color="black";
+  secElem.style.color="black";
+  
+  minElem.value = padTime(Math.floor(lastTime / 60));
+  secElem.value = padTime(Math.floor(lastTime % 60));
+  
+  var audio = document.getElementsByTagName("audio")[0];
+  audio.pause();
+  audio.currentTime = 0;
+}
+
+function timeChange(time) {
+  //ignore this
+  if(time == -1) {
+    return;
+  }
+  else {
+    lastTime = parseInt(time);
+    resetCoundDown();
+    
+  }
+}
+
+function padTime(i) {
+    if (i < 10) i = "0" + i;
+    return i;
+}
+</script>
+
+<br>
+<div style="text-align: center">
+<div id="clock" style="display: inline-block;">
+  <div>
+    <select style="width:124px; margin: 4px 6px;" onchange="timeChange(this.options[this.selectedIndex].value)">
+      <option value="-1">Timer</option>
+      <option disabled></option>
+      <option disabled>High School</option> 
+      <option value="480">Constructive - 8:00</option>
+      <option value="300">Rebutal - 5:00</option>
+      <option value="180">CX - 3:00</option>
+      <option disabled></option>
+      <option disabled>College</option> 
+      <option value="540">Constructive - 9:00</option>
+      <option value="360">Rebutal - 6:00</option>
+    </select>
+  </div>
+  <div id="time">
+    <input id="minutes" type="number" step="1" value="08" style="text-align:center;width:60px;height:40px;font-size: 30px">
+    <input id="seconds" type="number" step="1" value="00" style="text-align:center;width:60px;height:40px;font-size: 30px">
+  </div>
+  <div>
+    <button class="action" id="start" onclick="startCountDown();" style="min-width:54px;">Start</button>
+    <button id="reset" onclick="resetCoundDown();" style="min-width:54px;">Reset</button>
+  </div>
+</div>
+</div>
+
+<audio>
+ <source src="https://docs.google.com/uc?export=open&id=0BxxolsFkwnDqSElQOUlKNFIxb3c" type="audio/wav">
+</audio>
+
+<div id="loader" class="loader" style="visibility:hidden"></div>
+
+</body>
+</html>
+
+
+

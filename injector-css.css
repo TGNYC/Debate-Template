@@ -1,0 +1,28 @@
+@import url("https://docs.google.com/uc?export=open&id=0BxxolsFkwnDqNUtUeExSWC14V1E");
+
+.navigation-item {
+ height:20px;
+ line-height:20px;
+}
+
+.collapsed-menu:before {
+    content:"▶";
+}
+
+.expanded-menu:before {
+    content:"▼";
+}
+
+.empty-menu:before {
+    content:"▶";
+    visibility:hidden;
+}
+
+.navigation-widget-row-controls-control {
+ display: none;
+ visibility: hidden;
+}
+
+.script-application-sidebar {
+    width : 200px;
+}
